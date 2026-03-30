@@ -20,13 +20,13 @@ for algorithm in Executer.paths.keys():
         os.remove('Estimations/execution_time')
     except:
         pass
-    a = Estimator.Estimator(execution_time, 168, estimator)
-    try:
-        a._readfile(100)
-    except Exception as e:
-        a.BuildTrainingSet(100)
-    del a
     for estimator in Estimator.available_estimators:
+        a = Estimator.Estimator(execution_time, 168, estimator)
+        try:
+            a._readfile(100)
+        except Exception as e:
+            a.BuildTrainingSet(100)
+        del a
         for executions in [500, 250, 100, 50]:
             print(f'Algorithm: {algorithm} - Estimator: {estimator} - Executions: {executions}')
         
