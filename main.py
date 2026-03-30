@@ -4,20 +4,18 @@ import Optimizer
 
 import os
 
-algorithm = 'correlation'
-polybench = Executer.PolyBench(algorithm)
-
-
-def execution_time(parameters):
-    compilation = polybench.Compile(parameters, algorithm)
-    if compilation['error'] != 0:
-        return 1e12
-    execution = polybench.Run()
-    if execution['error'] != 0:
-        return 1e12
-    return execution['time']
-
 for algorithm in Executer.paths.keys():
+    polybench = Executer.PolyBench(algorithm)
+
+    def execution_time(parameters):
+        compilation = polybench.Compile(parameters, algorithm)
+        if compilation['error'] != 0:
+            return 1e12
+        execution = polybench.Run()
+        if execution['error'] != 0:
+            return 1e12
+        return execution['time']
+    
     try:
         os.remove('Estimations/execution_time')
     except:
