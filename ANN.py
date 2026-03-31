@@ -18,6 +18,9 @@ class MLP(nn.Module):
             x = x.unsqueeze(0)
         value = self.stack(x)
         return value
+
+class CNN(nn.Module):
+    pass
     
 class RNN(nn.Module):
     def __init__(self, initial):
