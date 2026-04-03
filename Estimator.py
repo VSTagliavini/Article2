@@ -1,6 +1,5 @@
 import types
 
-import Executer
 import ANN
 
 import numpy as np
@@ -8,7 +7,7 @@ import ast
 import sklearn
 import torch
 
-available_estimators = ('SVM', 'DT', 'SGD', 'KNN', 'GP', 'GB', 'RF', 'MLP', 'RNN', 'GRU', 'LSTM')
+available_estimators = ('SVM', 'DT', 'SGD', 'KNN', 'GP', 'GB', 'RF', 'MLP', 'RNN', 'GRU', 'LSTM', 'CNN')
 
 class Estimator:
     def __init__(self, function, num_parameters, regressor):
@@ -106,7 +105,7 @@ class Estimator:
         elif self.regressor == 'RF':
             self.reg = sklearn.ensemble.RandomForestRegressor()
             self.reg.fit(self.parameters, self.values)
-        elif self.regressor in ['MLP', 'RNN', 'GRU', 'LSTM']:
+        elif self.regressor in ['MLP', 'RNN', 'GRU', 'LSTM', 'CNN']:
             tensor_parameters = torch.tensor(self.parameters, dtype=torch.float32)
             tensor_objective = torch.tensor(self.values, dtype=torch.float32)
 
@@ -126,6 +125,8 @@ class Estimator:
                 self.reg = ANN.GRU(self.num_parameters)
             elif self.regressor == 'LSTM':
                 self.reg = ANN.LSTM(self.num_parameters)
+            elif self.regressor == 'CNN':
+                self.reg = ANN.CNN(self.num_parameters)
 
             loss_func = torch.nn.MSELoss()
             optimizer = torch.optim.Adam(self.reg.parameters(), lr=1e-4)
@@ -153,7 +154,7 @@ class Estimator:
         if self.regressor in ['SVM', 'DT', 'SGD', 'KNN', 'GP', 'GB', 'RF']:
             parameters = parameters.reshape(1, -1)
             return self.reg.predict(parameters)[0]
-        elif self.regressor in ['MLP', 'RNN', 'GRU', 'LSTM']:
+        elif self.regressor in ['MLP', 'RNN', 'GRU', 'LSTM', 'CNN']:
             X = torch.tensor(parameters, dtype=torch.float32)
             self.reg.eval()
             estimate = 0
