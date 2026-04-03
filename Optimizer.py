@@ -8,7 +8,6 @@ import pygad
 import pyswarms
 import scipy
 
-import Executer
 import Estimator
 
 class Optimizer:
@@ -30,7 +29,7 @@ class Optimizer:
                 raise Exception(f'estimation_points must be integer but received {type(estimation_points)}')
             if estimation_points <= 0:
                 raise Exception(f'estimation_points must be greater than 0')
-            if estimation_alg not in ('test', 'SVM', 'DT', 'SGD', 'KNN', 'GP', 'GB', 'RF', 'MLP', 'RNN', 'GRU', 'LSTM'):
+            if estimation_alg not in Estimator.available_estimators:
                 raise Exception(f'Algorithm {estimation_alg} is not supported')
         self.use_estimator = use_estimator
         self.estimation_points = estimation_points
@@ -116,7 +115,7 @@ class PS(Optimizer):
                     self.best_parameters = particle.tolist()
                 return value
         else:
-            if X.dim == 2:
+            if X.ndim == 2:
                 costs = []
                 for particle in X:
                     value = self.func(particle)
@@ -126,6 +125,7 @@ class PS(Optimizer):
                     if value < self.best_result:
                         self.best_result = value
                         self.best_parameters = particle.tolist()
+                return costs
             else:
                 value = self.func(X)
                 self.history.append(value)
