@@ -7,6 +7,8 @@ import bayes_opt
 import pygad
 import pyswarms
 import scipy
+import skopt
+#from skopt.space import Real
 
 import Estimator
 
@@ -56,30 +58,38 @@ class BO(Optimizer):
         for i in range(num_parameters):
             self.bounds[f'param_{i}'] = (0, 1)
 
-    def optimization_function(self, **parameters):
-        params = [parameters[f'param_{i}'] for i in range(self.num_parameters)]
-
+    def optimization_function(self, x):
+        if len(self.history) > self.total_executions:
+            raise Exception('max executions')
         if self.use_estimator:
-            value = self.estimator.Estimate(params)
+            value = self.estimator.Estimate(x)
         else:
-            value = self.func(params)
+            value = self.func(x)
         self.history.append(value)
 
         if value < self.best_result:
             self.best_result = value
-            self.best_parameters = parameters
+            self.best_parameters = x
 
-        return 1000000/(value + 1e-6)
+        return value
 
     def Optimize(self, init_points, search_points):
         self.total_executions = init_points + search_points
-        self.optimizer = bayes_opt.BayesianOptimization(f=self.optimization_function, pbounds=self.bounds, verbose=0)
-        self.optimizer.maximize(n_iter=search_points, init_points=init_points)
+
+        res = skopt.gp_minimize(
+            self.optimization_function,
+            dimensions=[skopt.space.Real(0, 1)] * self.num_parameters,
+            n_calls=init_points + search_points,
+            n_random_starts=init_points
+        )
+
+        #self.optimizer = bayes_opt.BayesianOptimization(f=self.optimization_function, pbounds=self.bounds, verbose=0)
+        #self.optimizer.maximize(n_iter=search_points, init_points=init_points)
 
         model = {
                 'sample': self.total_executions,
-                'best_time': self.best_result[0],
-                'best_solution': [self.best_parameters[f'param_{i}'] for i in range(self.num_parameters)],
+                'best_time': self.best_result,
+                'best_solution': self.best_parameters,
                 'history': self.history
             }
 
