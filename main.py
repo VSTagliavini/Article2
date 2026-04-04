@@ -1,4 +1,5 @@
 import ExecuterCPU
+import Estimator
 import Optimizer
 
 import os
@@ -15,38 +16,38 @@ for algorithm in ExecuterCPU.paths.keys():
             return 1e12
         return execution['time']
     
-    #try:
-    #    os.remove('Estimations/execution_time')
-    #except:
-    #    pass
+    try:
+        os.remove('Estimations/execution_time')
+    except:
+        pass
 
-    for estimator in ['CNN']:#Estimator.available_estimators:
-        #a = Estimator.Estimator(execution_time, 168, estimator)
-        #try:
-        #    a._readfile(50)
-        #except Exception as e:
-        #    a.BuildTrainingSet(50)
-        #del a
-        for executions in [0]: #[500, 250, 100, 50]:
+    for estimator in Estimator.available_estimators:
+        a = Estimator.Estimator(execution_time, 168, estimator)
+        try:
+            a._readfile(50)
+        except Exception as e:
+            a.BuildTrainingSet(50)
+        del a
+        for executions in [500, 250, 100, 50]:
             print(f'Algorithm: {algorithm} - Estimator: {estimator} - Executions: {executions}')
         
-            #bo = Optimizer.BO(execution_time, 168, algorithm, use_estimator=True, estimation_points=executions, estimation_alg=estimator)
-            #bo.Optimize(25, 225)
+            bo = Optimizer.BO(execution_time, 168, algorithm, use_estimator=True, estimation_points=executions, estimation_alg=estimator)
+            bo.Optimize(25, 1250)
 
             ps = Optimizer.PS(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            ps.Optimize(25, 10)
+            ps.Optimize(25, 50)
         
             ga = Optimizer.GA(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            ga.Optimize(25, 10)
+            ga.Optimize(25, 50)
 
             bh = Optimizer.BH(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            bh.Optimize(10, 25)
+            bh.Optimize(50, 25)
 
             de = Optimizer.DE(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            de.Optimize(25, 10)
+            de.Optimize(25, 50)
 
             sa = Optimizer.SA(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            sa.Optimize(250)
+            sa.Optimize(1250)
 
             nm = Optimizer.NM(execution_time, 168, algorithm, use_estimator=False, estimation_points=executions, estimation_alg=estimator)
-            nm.Optimize(250)
+            nm.Optimize(1250)
