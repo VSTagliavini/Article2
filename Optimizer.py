@@ -3,12 +3,10 @@ import sys
 import json
 
 import numpy as np
-import bayes_opt
 import pygad
 import pyswarms
 import scipy
 import skopt
-#from skopt.space import Real
 
 import Estimator
 
@@ -74,27 +72,28 @@ class BO(Optimizer):
         return value
 
     def Optimize(self, init_points, search_points):
-        self.total_executions = init_points + search_points
+        self.total_executions = search_points
 
-        res = skopt.gp_minimize(
-            self.optimization_function,
-            dimensions=[skopt.space.Real(0, 1)] * self.num_parameters,
-            n_calls=init_points + search_points,
-            n_random_starts=init_points
-        )
-
+        try:
+            res = skopt.gp_minimize(
+                self.optimization_function,
+                dimensions=[skopt.space.Real(0, 1)] * self.num_parameters,
+                n_calls=init_points + search_points,
+                n_random_starts=init_points
+            )
+        except Exception as e:
         #self.optimizer = bayes_opt.BayesianOptimization(f=self.optimization_function, pbounds=self.bounds, verbose=0)
         #self.optimizer.maximize(n_iter=search_points, init_points=init_points)
 
-        model = {
-                'sample': self.total_executions,
-                'best_time': self.best_result,
-                'best_solution': self.best_parameters,
-                'history': self.history
-            }
+            model = {
+                    'sample': self.total_executions,
+                    'best_time': self.best_result,
+                    'best_solution': self.best_parameters,
+                    'history': self.history
+                }
 
-        with open(f'./Saves/BO/{self.algorithm}_{self.func.__name__}-a{self.estimation_alg}{self.estimation_points}.json', 'w') as save_file:
-            json.dump(model, save_file)
+            with open(f'./Saves/BO/{self.algorithm}_{self.func.__name__}-a{self.estimation_alg}{self.estimation_points}.json', 'w') as save_file:
+                json.dump(model, save_file)
 
 class PS(Optimizer):
     def __init__(self, function, num_parameters, algorithm, use_estimator=False, estimation_points=0, estimation_alg='DT'):
